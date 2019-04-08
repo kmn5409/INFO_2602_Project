@@ -1,0 +1,33 @@
+virtualenv -p python3 venv
+
+source venv/bin/activate
+
+pip install -r requirements.txt
+
+FLASK_APP=app.py flask run --reload
+
+ng serve
+
+git remote -v
+
+heroku git:remote -a pacific-mesa-82818
+
+heroku git:remote dry-ocean-24314
+
+heroku login
+
+git status 
+
+git add --all
+
+git commit -m "Commited"
+
+git push heroku master
+
+https://pacific-mesa-82818.herokuapp.com/
+
+gunicorn wsgi:app
+
+https://protected-fjord-70958.herokuapp.com/
+
+heroku git:remote protected-fjord-70958

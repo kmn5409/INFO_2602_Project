@@ -1,0 +1,35 @@
+Exception on /api/users [GET]
+Traceback (most recent call last):
+  File "/home/keanu/Documents/University/UWI/Year_2/Semester_2/INFO_2602/Labs/Lab_8/lab8/venv/lib/python3.6/site-packages/flask/app.py", line 1974, in make_response
+    rv = self.response_class.force_type(rv, request.environ)
+  File "/home/keanu/Documents/University/UWI/Year_2/Semester_2/INFO_2602/Labs/Lab_8/lab8/venv/lib/python3.6/site-packages/werkzeug/wrappers/base_response.py", line 269, in force_type
+    response = BaseResponse(*_run_wsgi_app(response, environ))
+  File "/home/keanu/Documents/University/UWI/Year_2/Semester_2/INFO_2602/Labs/Lab_8/lab8/venv/lib/python3.6/site-packages/werkzeug/wrappers/base_response.py", line 26, in _run_wsgi_app
+    return _run_wsgi_app(*args)
+  File "/home/keanu/Documents/University/UWI/Year_2/Semester_2/INFO_2602/Labs/Lab_8/lab8/venv/lib/python3.6/site-packages/werkzeug/test.py", line 1118, in run_wsgi_app
+    app_rv = app(environ, start_response)
+TypeError: 'list' object is not callable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/keanu/Documents/University/UWI/Year_2/Semester_2/INFO_2602/Labs/Lab_8/lab8/venv/lib/python3.6/site-packages/flask/app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/keanu/Documents/University/UWI/Year_2/Semester_2/INFO_2602/Labs/Lab_8/lab8/venv/lib/python3.6/site-packages/flask/app.py", line 1816, in full_dispatch_request
+    return self.finalize_request(rv)
+  File "/home/keanu/Documents/University/UWI/Year_2/Semester_2/INFO_2602/Labs/Lab_8/lab8/venv/lib/python3.6/site-packages/flask/app.py", line 1831, in finalize_request
+    response = self.make_response(rv)
+  File "/home/keanu/Documents/University/UWI/Year_2/Semester_2/INFO_2602/Labs/Lab_8/lab8/venv/lib/python3.6/site-packages/flask/app.py", line 1982, in make_response
+    reraise(TypeError, new_error, sys.exc_info()[2])
+  File "/home/keanu/Documents/University/UWI/Year_2/Semester_2/INFO_2602/Labs/Lab_8/lab8/venv/lib/python3.6/site-packages/flask/_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "/home/keanu/Documents/University/UWI/Year_2/Semester_2/INFO_2602/Labs/Lab_8/lab8/venv/lib/python3.6/site-packages/flask/app.py", line 1974, in make_response
+    rv = self.response_class.force_type(rv, request.environ)
+  File "/home/keanu/Documents/University/UWI/Year_2/Semester_2/INFO_2602/Labs/Lab_8/lab8/venv/lib/python3.6/site-packages/werkzeug/wrappers/base_response.py", line 269, in force_type
+    response = BaseResponse(*_run_wsgi_app(response, environ))
+  File "/home/keanu/Documents/University/UWI/Year_2/Semester_2/INFO_2602/Labs/Lab_8/lab8/venv/lib/python3.6/site-packages/werkzeug/wrappers/base_response.py", line 26, in _run_wsgi_app
+    return _run_wsgi_app(*args)
+  File "/home/keanu/Documents/University/UWI/Year_2/Semester_2/INFO_2602/Labs/Lab_8/lab8/venv/lib/python3.6/site-packages/werkzeug/test.py", line 1118, in run_wsgi_app
+    app_rv = app(environ, start_response)
+TypeError: 'list' object is not callable
+The view function did not return a valid response. The return type must be a string, tuple, Response instance, or WSGI callable, but it was a list.
