@@ -35,6 +35,7 @@ class Anime(Entity,db.Model):
     commit_comment = Column(String(5000))
     types = Column(String(10))
     sha = Column(String(50))
+    comment_id = Column(String(50))
     
     '''
     __tablename__='anime'
@@ -52,7 +53,7 @@ class Anime(Entity,db.Model):
         super().__init__()
         Entity.__init__(self)
 
-    def fromJSON(self, json_rec,types):
+    def fromJSON(self, json_rec,sha,number,types):
         '''
         if 'name' in json_rec:
             self.name = json_rec['name']
@@ -79,7 +80,8 @@ class Anime(Entity,db.Model):
             self.author_name = json_rec.user.name
             self.commit_comment = json_rec.body
             self.types = "comment"
-            self.sha = json_rec.html_url
+            self.sha = sha
+            self.comment_id = number
 
     '''
     def toDict(self):
@@ -114,7 +116,8 @@ class Anime(Entity,db.Model):
                 'author_name':self.author_name,
                 'commit_comment' : self.commit_comment,
                 'type':self.types,
-                'sha': self.sha              
+                'sha': self.sha,
+                'comment_id': self.comment_id              
             })
         return repre
         '''
@@ -142,15 +145,17 @@ def load_pkfile_into_table(target, connection, **kw):
                 p = Anime()
                 #print(i)
                 #print(i.commit.author.name)
-                p.fromJSON(i,"commit")
+                p.fromJSON(i," ",-1,"commit")
                 db.session.add(p)
-            for j in repo.get_comments():
-                print("Comments: \n\n",j.body)
-                p = Anime()
-                #print(i)
-                #print(i.commit.author.name)
-                p.fromJSON(j,"comment")
-                db.session.add(p)
+                line = 0
+                for j in i.get_comments():
+                    print("Comments: \n\n",j.body)
+                    p = Anime()
+                    #print(i)
+                    #print(i.commit.author.name)
+                    p.fromJSON(j,i.commit.sha,line,"comment")
+                    db.session.add(p)
+                    line+=1
         #db.session.add(p)
         db.session.commit()
     
