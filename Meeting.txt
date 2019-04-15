@@ -1,0 +1,37 @@
+master-detail 
+
+delgate tasks for pull request
+
+edit comment or delete
+
+could put a new comment (locally first) - then post it to github page
+
+
+graph of commits and pull requests over time 
+
+
+have two views one with local posts and then another view for comments on the repo
+
+Rahel - Graphs
+
+Atonia - Templates for html 
+
+Keanu - API
+
+
+
+
+sclability - cach layer how many people are storing these things (maybe local storage?)
+
+modulatiry - section off the code into different parts 
+
+definition of how we think these things are, how we see it how we implement it
+
+
+
+user who posted the pull request
+- timestamp
+
+who wrote comment and timestamp of comment
+ 
+comment content
