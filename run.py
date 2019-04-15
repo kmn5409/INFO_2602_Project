@@ -15,10 +15,10 @@ def postCommit(g):
 			#POST
 			'''print(type(repo.get_commit("856870f91562680d0a097a037df15290cdb49b96")))
 			repo.get_commit("856870f91562680d0a097a037df15290cdb49b96").create_comment('Hello from a program!')'''
-			print(repo.get_commit("856870f91562680d0a097a037df15290cdb49b96").get_comments()[4])
-			print(repo.get_commit("856870f91562680d0a097a037df15290cdb49b96").get_comments()[4].body)
+			print(repo.get_commit("856870f91562680d0a097a037df15290cdb49b96").get_comments()[2])
+			print(repo.get_commit("856870f91562680d0a097a037df15290cdb49b96").get_comments()[2].body)
 			#DELETE
-			print(repo.get_commit("856870f91562680d0a097a037df15290cdb49b96").get_comments()[4].delete())	
+			#print(repo.get_commit("856870f91562680d0a097a037df15290cdb49b96").get_comments()[4].delete())	
 
 
 def postPullRequest(g):
@@ -28,19 +28,21 @@ def postPullRequest(g):
 				print(type(pull_request))
 				print("Pull Request: ",pull_request.title)
 				print("Pull Request Comment: ",pull_request.body)
-				ID = pull_request.id
+				ID = pull_request.number
+				print(pull_request.html_url)
 				print(ID)
 				pull = repo.get_pull(ID)
 				print(pull)
-				pull.create_comment("Hello from a program")
+				print("Date: ",repo.get_pull(ID).created_at)
+				#pull.create_comment("Hello from a program")
 				for comments in pull_request.get_issue_comments():
 					print("Comment: ",comments.body)
 				#print(pull_request)
 		
 username = ("kmn5409")
-#password = getpass()
-#g = Github(username,password)
-g = Github('c5c1fb044b46cde5a102ae0f507309e01f68d593')
+password = getpass()
+g = Github(username,password)
+#g = Github('c5c1fb044b46cde5a102ae0f507309e01f68d593')
 commits = 0
 #postCommit(g)
 postPullRequest(g)
