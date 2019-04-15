@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Float
+from sqlalchemy import Column, String, Integer, Float, DateTime
 from models.entity import Entity
 from sqlalchemy.event import listen
 import csv
@@ -30,12 +30,15 @@ class Pokemon(Entity, db.Model):
 class Anime(Entity,db.Model):
     __tablename__ = 'anime'
     #id = Column(Integer,primary_key=True,autoincrement='auto')
+    user = Column(String(50))
+    repo = Column(String(100))
     author_name = Column(String(50))
-    commit_message = Column(String(5000))
-    commit_comment = Column(String(5000))
-    types = Column(String(10))
-    sha = Column(String(50))
-    comment_id = Column(String(50))
+    pull_request_message = Column(String(5000))
+    pull_request_comment = Column(String(5000))
+    types = Column(String(15))
+    number = Column(Integer)
+    pull_request_id = Column(String(50))
+    timestamp = Column(DateTime())
     
     '''
     __tablename__='anime'
@@ -53,7 +56,7 @@ class Anime(Entity,db.Model):
         super().__init__()
         Entity.__init__(self)
 
-    def fromJSON(self, json_rec,sha,number,types):
+    def fromJSON(self, user,name,repo,pull_request,types):
         '''
         if 'name' in json_rec:
             self.name = json_rec['name']
@@ -71,14 +74,16 @@ class Anime(Entity,db.Model):
         self.speed = json_rec['speed'] if 'speed' in json_rec else 0
         '''
         #print("Here ",json_rec.commit.author.name)
-        if(types == "commit"):
-            self.author_name = json_rec.commit.author.name
-            self.commit_message = json_rec.commit.message[:]
-            self.types = "commit"
-            self.sha = json_rec.commit.sha
+        self.user = user
+        self.repo = repo
+        if(types == "pull_request"):
+            self.author_name = pull_request.user.login #Need to verify if this is the author
+            self.pull_request_message = pull_request.body
+            self.types = types
+            self.number = pull_request.number
         elif(types == "comment"):
-            self.author_name = json_rec.user.name
-            self.commit_comment = json_rec.body
+            self.author_name = pull_request.user.name
+            self.commit_comment = pull_request.body
             self.types = "comment"
             self.sha = sha
             self.comment_id = number
@@ -102,13 +107,12 @@ class Anime(Entity,db.Model):
         '''
     def toDict(self):
         repre = Entity.toDict(self)
-        if(self.types == "commit"):
+        if(self.types == "pull_request"):
             repre.update({
                 'id':self.id,
-                'author_name':self.author_name,
-                'commit_message' : self.commit_message,
-                'type':self.types,
-                'sha': self.sha               
+                'author_name':self.user,
+                'pull_request_message' : self.pull_request_message,
+                'type':self.types,               
             })
         elif(self.types == "comment"):
             repre.update({
@@ -133,29 +137,35 @@ class Anime(Entity,db.Model):
         }
         '''
 
-
+#class Comment:
+    
 
 def load_pkfile_into_table(target, connection, **kw):
     import json
     g = Github("c5c1fb044b46cde5a102ae0f507309e01f68d593")
-    for repo in g.get_user("kmn5409").get_repos():
-        if(repo.name == "Test"):
-            for i in repo.get_commits():
+    user = "kmn5409"
+    name = "Test"
+    for repo in g.get_user(user).get_repos():
+        if(repo.name == name):
+            for pull_request in repo.get_pulls():
                 #print("Message: ",i.commit.message[:])
                 p = Anime()
                 #print(i)
                 #print(i.commit.author.name)
-                p.fromJSON(i," ",-1,"commit")
+                p.fromJSON(user,name,repo.name,pull_request,"pull_request")
                 db.session.add(p)
+                #GET request
                 line = 0
+                '''
                 for j in i.get_comments():
                     print("Comments: \n\n",j.body)
                     p = Anime()
                     #print(i)
                     #print(i.commit.author.name)
-                    p.fromJSON(j,i.commit.sha,line,"comment")
+                    p.fromJSON(user,name,j,i.commit.sha,line,"comment")
                     db.session.add(p)
                     line+=1
+                '''
         #db.session.add(p)
         db.session.commit()
     
