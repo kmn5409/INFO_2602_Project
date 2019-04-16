@@ -23,12 +23,13 @@ g = Github("c5c1fb044b46cde5a102ae0f507309e01f68d593")
 db = SQLAlchemy(app)
 session = db.session
 
-from models.anime import Anime
+from models.pull_request import PullRequest
+from models.pull_request import Comment
 from models.users import User
 
 @app.before_first_request
 def setup():
-    # db.Model.metadata.drop_all(bind=db.engine)
+    db.Model.metadata.drop_all(bind=db.engine)
     db.Model.metadata.create_all(bind=db.engine)
 
 
@@ -36,9 +37,24 @@ def setup():
 def hello():
     return '<h1>Hello World</h1>'
 
-@app.route('/api/anime', methods=['GET'])
-def show_all_pokemon():
-    query = Anime.query.order_by(Anime.id.asc())
+@app.route('/api/pull_requests', methods=['GET'])
+def show_all_pull_requests():
+    query = PullRequest.query.order_by(PullRequest.id.asc())
+    
+    start = request.args.get('offset', default=1, type=int)
+    num_records = request.args.get('limit', default=10, type=int)
+
+    records = query.paginate(start, num_records).items
+    records = list(map(lambda x: x.toDict(), records))
+    print(len(records))
+    print(records)
+    response = jsonify(records)
+    #response = records
+    return response
+
+@app.route('/api/comments', methods=['GET'])
+def show_all_comments():
+    query = Comment.query.order_by(Comment.id.asc())
     
     start = request.args.get('offset', default=1, type=int)
     num_records = request.args.get('limit', default=10, type=int)
@@ -52,19 +68,18 @@ def show_all_pokemon():
     return response
 
 
-
-@app.route('/api/anime/<pk_id>',methods=["GET"])
-def get_pokemon_by_id(pk_id):
+@app.route('/api/pull_requests/<pk_id>',methods=["GET"])
+def get_pull_requests_by_id(pk_id):
     try:
-        anime = Anime.query.get(pk_id)
+        pull_request = PullRequest.query.get(pk_id)
         '''
         if request.form
             request_data = request.form
         else:
             request_data = request.get_json()
         '''
-        if anime:
-            return jsonify(anime.toDict())
+        if pull_request:
+            return jsonify(pull_request.toDict())
         else:
             results = None
             return make_response(jsonify(results), 404)
