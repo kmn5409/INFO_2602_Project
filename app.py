@@ -12,7 +12,7 @@ from github import Github
 from flask_jwt import JWT, jwt_required, current_identity
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///lab8.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///Requests.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'so unsecured'
 # enable CORS on all the routes that start with /api
