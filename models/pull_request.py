@@ -52,7 +52,6 @@ class PullRequest(Entity,db.Model):
         })
         return repre
 
-#class Comment:
 
 class Comment(db.Model):
     __tablename__ = 'comments'
@@ -60,19 +59,19 @@ class Comment(db.Model):
     commentor_name = Column(String(50))
     comment_content = Column(String(5000))
     timestamp = Column(DateTime())    
-    #request_id = Column(Integer, ForeignKey('pullRequest.id'), nullable=False)
-    #request_id = Column(Integer, ForeignKey('pullRequest.id'), nullable=False)
+    #request_id = Column(Integer, ForeignKey('pullRequest.id'))
+    request_id = Column(Integer, ForeignKey('pullRequest.id'), nullable=False)
 
     def __init__(self):
         super().__init__()
         #Entity.__init__(self)
 
-    def fromJSON(self,comment):
+    def fromJSON(self,comment,id1):
         
         self.commentor_name = comment.user.login
         self.comment_content = comment.body
         self.timestamp = comment.created_at
-        #self.request_id = id1
+        self.request_id = id1
 
     def toDict(self):
         #repre = Entity.toDict(self)
@@ -81,17 +80,18 @@ class Comment(db.Model):
             'commentor_name':self.commentor_name,
             'comment_content':self.comment_content,
             'timestamp':self.timestamp,
-            #'request_id':self.request_id
+            'request_id':self.request_id
         }
         
     
 
-def load_file_into_table(target1,target2, connection, **kw):
+def load_file_into_table(target1, connection, **kw):
     import json
     g = Github("c5c1fb044b46cde5a102ae0f507309e01f68d593")
     user = "kmn5409"
     name = "Test"
     p = ""
+    rID=0
     for repo in g.get_user(user).get_repos():
         if(repo.name == name):
             for pull_request in repo.get_pulls():
@@ -103,28 +103,22 @@ def load_file_into_table(target1,target2, connection, **kw):
                 print("Pull Request:")
                 db.session.add(p)
                 #print("Hey")
+                db.session.commit()
+                rID+=1
                 print(p.toDict())
-                #GET request
-                line = 0
                 for comment in pull_request.get_issue_comments():
                     #print("Comments: \n\n",comment.body)
                     c = Comment()
-                    print(comment)
-                    #print(comment.commit.author.name)
-                    c.fromJSON(comment)
-                    print("Before")
+                    #print(comment)
+                    c.fromJSON(comment,rID)
+                    #print("Before")
                     db.session.add(c)
-                    #comments.add(c)
                     print("Comment")
                     print(c.toDict())
-                    line+=1
+                    #line+=1
         #db.session.add(p)
         db.session.commit()
         #print(p.toDict())
         #print(c.toDict())
-    
 
-
-#listen(Pokemon.__table__, 'after_create', load_pkfile_into_table)
-listen(PullRequest.__table__,Comment.__table__, 'after_create', load_file_into_table)
-#listen(Comment.__table__, 'after_create', load_file_into_table)
+listen(Comment.__table__,  'after_create', load_file_into_table)
