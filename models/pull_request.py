@@ -27,7 +27,6 @@ class PullRequest(Entity,db.Model):
 
     def fromJSON(self,pull_request):
         self.repos_author = pull_request.base.repo.owner.login
-        #self.repo = repo
         self.author_name = pull_request.user.login #Need to verify if this is the author
         self.pull_request_message = pull_request.title
         self.number = pull_request.number
@@ -38,7 +37,7 @@ class PullRequest(Entity,db.Model):
         repre = Entity.toDict(self)
         repre.update({
             'id':self.id,
-            'repository_owner':self.repos_author,
+            'repos_author':self.repos_author,
             'author_name':self.author_name,
             'pull_request_message' : self.pull_request_message,
             'author_name':self.author_name,  
