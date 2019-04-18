@@ -22,8 +22,9 @@ def postCommit(g):
 
 
 def postPullRequest(g):
-	for repo in g.get_user("kmn5409").get_repos():
-		if(repo.name == "Test"):
+	for repo in g.get_user("chaoss").get_repos():
+		#print(repo.name)
+		if(repo.name == "grimoirelab-kidash"):
 			for pull_request in repo.get_pulls():
 				print(type(pull_request))
 				print("Pull Request: ",pull_request.title)
@@ -37,12 +38,13 @@ def postPullRequest(g):
 				#pull.create_comment("Hello from a program")
 				for comments in pull_request.get_issue_comments():
 					print("Comment: ",comments.body)
+				print("Repo owner:",pull_request.base.repo.owner.login)
 				#print(pull_request)
 		
-username = ("kmn5409")
-password = getpass()
-g = Github(username,password)
-#g = Github('c5c1fb044b46cde5a102ae0f507309e01f68d593')
+#username = ("kmn5409")
+#password = getpass()
+#g = Github(username,password)
+g = Github('c5c1fb044b46cde5a102ae0f507309e01f68d593')
 commits = 0
 #postCommit(g)
 postPullRequest(g)
