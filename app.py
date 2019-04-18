@@ -52,7 +52,7 @@ def show_all_pull_requests():
     print(records)
     response = jsonify(records)
     #response = records
-    return response
+    return render_template('request.html', requests=records)
 
 @app.route('/api/comments', methods=['GET'])
 def show_all_comments():
