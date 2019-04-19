@@ -29,9 +29,10 @@ class PullRequest(Entity,db.Model):
         self.repos_author = pull_request.base.repo.owner.login
         self.author_name = pull_request.user.login #Need to verify if this is the author
         self.pull_request_message = pull_request.title
+        self.pull_request_comment = pull_request.body
         self.number = pull_request.number
         self.timestamp = pull_request.created_at
-        self.url = pull_request.url
+        self.url = pull_request.html_url
 
     def toDict(self):
         repre = Entity.toDict(self)
@@ -40,6 +41,8 @@ class PullRequest(Entity,db.Model):
             'repos_author':self.repos_author,
             'author_name':self.author_name,
             'pull_request_message' : self.pull_request_message,
+            'pull_request_comment': self.pull_request_comment,
+            'pull_request_comment' : self.pull_request_comment,
             'author_name':self.author_name,  
             'timestamp':  self.timestamp,
             'url':self.url
