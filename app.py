@@ -18,7 +18,8 @@ app.config['SECRET_KEY'] = 'so unsecured'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 # enable CORS on all the routes that start with /api
 CORS(app, resources={r"/*": {"origins": "*"}})
-g = Github("c5c1fb044b46cde5a102ae0f507309e01f68d593")
+#g = Github("c5c1fb044b46cde5a102ae0f507309e01f68d593")
+g = Github()
 
 # configure the database to use Flask Sessions
 db = SQLAlchemy(app)
@@ -34,10 +35,27 @@ def setup():
     db.Model.metadata.drop_all(bind=db.engine)
     db.Model.metadata.create_all(bind=db.engine)
 
+def createLogin(new_person):
+    try:
+        global g
+        g = Github(new_person['name'],new_person['country'])
+        print("Logged in")
+    except error:
+        return {"message":"Error "+error, "code":500}
+    finally:
+        return {"message":'Logged in', "code":201}
 
 @app.route('/')
 def hello():
     return '<h1>Hello World</h1>'
+
+@app.route('/github')
+def github():
+    try:
+        name = g.get_user().login
+    except:
+        name = "None"
+    return name
 
 @app.route('/api/pull_requests', methods=['GET'])
 def show_all_pull_requests():
@@ -171,6 +189,16 @@ def delete_review_comment(fk_id, pk_id):
     except Exception as  e:
         print({"message":"Database error", "code":500})
     return get_pull_reviews_by_id(fk_id)
+
+@app.route('/api/login', methods=['POST'])
+def api_create_person():
+    data = None
+    if request.content_type  == 'application/x-www-form-urlencoded':
+        data = request.form
+        global g
+    elif request.content_type == 'application/json':
+        data = request.json
+    return jsonify(createLogin(data))# call createPerson on data an jsonify its response
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True, use_reloader=True)
