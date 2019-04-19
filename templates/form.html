@@ -4,8 +4,9 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-4">
+                    {% if pull_request != None %}
                         <div class="row">
-                            <h1>New </h1>
+                            <h1>New Comment </h1>
                         </div>
                         <div class="row">
                             <div>
@@ -27,5 +28,28 @@
                         </div>                      
                 </div>
              </div>  
+            {% else %}
+                            <div class="row">
+                                <div>
+                                    <h1>Update Comment</h1>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <fieldset>
+                                    <legend>Edit Comment: {{review.id}}</legend>
+                                    <form method="POST" action="/api/pull_requests/process_update/{{review.id}}">
+                                    <div class="form-group">
+                                        <label for="review.id" class="bmd-label-floating">Review ID</label>
+                                        <input type="text" name="review_id" value="{{review.id}}" id="pull_request_id" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="comment_content_field" class="bmd-label-floating">Comment</label>
+                                        <textarea  rows="5" cols="700" name="comment_content" value="{{review.comment_content}}" class="form-control" id="comment_content_field" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-raised">Submit</button>
+                                     
+                                </fieldset>
+                            </div>
+                        {% endif %}
          </div>      
 {% endblock %}
