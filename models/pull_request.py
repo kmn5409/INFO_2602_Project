@@ -98,36 +98,4 @@ class ReviewComment(db.Model):
             'request_id':self.request_id
         }
 
-def load_file_into_table(target1, connection, **kw):
-    import json
-    g = Github("c5c1fb044b46cde5a102ae0f507309e01f68d593")
-    user = "kmn5409"
-    name = "Test"
-    p = ""
-    rID=0
-    for repo in g.get_user(user).get_repos():
-        if(repo.name == name):
-            for pull_request in repo.get_pulls():
-                #print("Message: ",i.commit.message[:])
-                p = PullRequest()
-                #print(i)
-                #print(i.commit.author.name)
-                p.fromJSON(pull_request)
-                print("Pull Request:")
-                db.session.add(p)
-                rID+=1
-                print(p.toDict())
-                for comment in pull_request.get_issue_comments():
-                    #print("Comments: \n\n",comment.body)
-                    c = Comment()
-                    #print(comment)
-                    c.fromJSON(comment,rID)
-                    #print("Before")
-                    db.session.add(c)
-                    print("Comment")
-                    print(c.toDict())
-        db.session.commit()
-
-
-listen(Comment.__table__,  'after_create', load_file_into_table)
 
