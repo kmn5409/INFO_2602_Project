@@ -25,9 +25,12 @@ def postPullRequest(g):
 	for repo in g.get_user("kmn5409").get_repos():
 		if(repo.name == "Test"):
 			for pull_request in repo.get_pulls():
+				#POST comment to pull request using pull request number
+				print(repo.get_pull(pull_request.number).create_issue_comment("Hello from a program for a pull request"))
+				break
 				#DELETE comment using it's ID
 				#print(pull_request.get_issue_comment(482981943).delete())
-				#EDIT a pull request comment
+				#PUT (EDIT) a pull request comment
 				print(pull_request.get_issue_comment(482736272).edit("Here we go again from program"))
 				#print(type(pull_request.get_issue_comment(482981943)))
 				break
