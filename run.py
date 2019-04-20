@@ -22,33 +22,72 @@ def postCommit(g):
 
 
 def postPullRequest(g):
-	for repo in g.get_user("chaoss").get_repos():
-		#print(repo.name)
-		if(repo.name == "grimoirelab-kidash"):
+	for repo in g.get_user("kmn5409").get_repos():
+		if(repo.name == "Test"):
 			for pull_request in repo.get_pulls():
+				print(pull_request.get_issue_comment(482981943))
+				print(pull_request.get_issue_comment(482981943).body)
+				print(pull_request.get_issue_comment(482981943).user.login)
+				#Delete comment using it's ID
+				print(pull_request.get_issue_comment(482981943).delete())
+				print(type(pull_request.get_issue_comment(482981943)))
+				break
 				print(type(pull_request))
 				print("Pull Request: ",pull_request.title)
 				print("Pull Request Comment: ",pull_request.body)
 				ID = pull_request.number
 				print(pull_request.html_url)
-				print(ID)
+				print("User: ",pull_request.user)
+				print("User: ",pull_request.user.login)
+				print("Number: ",ID)
 				pull = repo.get_pull(ID)
 				print(pull)
 				print("Date: ",repo.get_pull(ID).created_at)
 				#pull.create_comment("Hello from a program")
 				for comments in pull_request.get_issue_comments():
 					print("Comment: ",comments.body)
-				print("Repo owner:",pull_request.base.repo.owner.login)
+					print(type(comments))
+					print("Commentor_name", comments.user.login)
+					print("Timestamp ",comments.created_at)
+					#Comment ID
+					print("ID",comments.id)
+					
 				#print(pull_request)
+				print(type(pull_request))
+				break
 		
-#username = ("kmn5409")
-#password = getpass()
-#g = Github(username,password)
-g = Github('c5c1fb044b46cde5a102ae0f507309e01f68d593')
+username = ("kmn5409")
+password = getpass()
+g = Github(username,password)
+#g = Github()
+print(Github)
+print(g)
+#g = Github('c5c1fb044b46cde5a102ae0f507309e01f68d593')
+'''
+try:
+	print(g.get_user().login)
+except:
+	print(None)
+
+print(g)
+print(g.get_user().login)
+'''
+'''
+print(g.get_user())
+print(g.get_user().created_at)
+print(g.get_user().get_key)
+print(g.get_user().create_key('key'))
+print(g.get_user().get_keys())
+#print(g.get_user().get_key().key)
+id1 = g.get_user().id
+print(id1)
+#print(g.get_user().ge))
 commits = 0
 #postCommit(g)
+'''
+#print(g.get_user().login)
+#print(g.RateLimit().rate.remaining)
 postPullRequest(g)
-
 #c5c1fb044b46cde5a102ae0f507309e01f68d593
 
 '''
