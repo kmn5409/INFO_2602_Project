@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, request, jsonify, render_template, make_response
 from sqlalchemy import func
+from sqlalchemy.event import listen
 from flask_cors import CORS
 import hashlib  
 import logging
@@ -18,7 +19,6 @@ app.config['SECRET_KEY'] = 'so unsecured'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 # enable CORS on all the routes that start with /api
 CORS(app, resources={r"/*": {"origins": "*"}})
-#g = Github("c5c1fb044b46cde5a102ae0f507309e01f68d593")
 g = Github()
 
 # configure the database to use Flask Sessions
@@ -28,34 +28,80 @@ session = db.session
 from models.pull_request import PullRequest
 from models.pull_request import Comment
 from models.pull_request import ReviewComment
+#from models.pull_request import load_file_into_table
 from models.users import User
+
+def load_file_into_table(target1, connection, **kw):
+    import json
+    g = Github("c5c1fb044b46cde5a102ae0f507309e01f68d593")
+    user = "kmn5409"
+    name = "Test"
+    p = ""
+    rID=0
+    for repo in g.get_user(user).get_repos():
+        if(repo.name == name):
+            for pull_request in repo.get_pulls():
+                #print("Message: ",i.commit.message[:])
+                p = PullRequest()
+                #print(i)
+                #print(i.commit.author.name)
+                p.fromJSON(pull_request)
+                print("Pull Request:")
+                db.session.add(p)
+                rID+=1
+                print(p.toDict())
+                for comment in pull_request.get_issue_comments():
+                    #print("Comments: \n\n",comment.body)
+                    c = Comment()
+                    #print(comment)
+                    c.fromJSON(comment,rID)
+                    #print("Before")
+                    db.session.add(c)
+                    print("Comment")
+                    print(c.toDict())
+        db.session.commit()
+
+
+listen(Comment.__table__,  'after_create', load_file_into_table)
 
 @app.before_first_request
 def setup():
     db.Model.metadata.drop_all(bind=db.engine)
     db.Model.metadata.create_all(bind=db.engine)
 
+
+@app.route('/')
+def hello():
+    return '<h1>Hello World</h1>'
+
 def createLogin(new_person):
     try:
         global g
-        g = Github(new_person['name'],new_person['country'])
+        g = Github(new_person['name'],new_person['password'])
         print("Logged in")
     except error:
         return {"message":"Error "+error, "code":500}
     finally:
         return {"message":'Logged in', "code":201}
 
-@app.route('/')
-def hello():
-    return '<h1>Hello World</h1>'
-
+#check log in status
 @app.route('/github')
 def github():
     try:
         name = g.get_user().login
     except:
-        name = "None"
+        return render_template("login.html")
     return name
+
+@app.route('/api/login', methods=['POST'])
+def api_create_person():
+    data = None
+    if request.content_type  == 'application/x-www-form-urlencoded':
+        data = request.form
+        global g
+    elif request.content_type == 'application/json':
+        data = request.json
+    return jsonify(createLogin(data))# call createPerson on data an jsonify its response
 
 @app.route('/api/pull_requests', methods=['GET'])
 def show_all_pull_requests():
@@ -117,8 +163,10 @@ def get_comments_by_id(pk_id):
 def get_pull_comments_by_id(fk_id):
     try:
         comment=Comment.query.filter(Comment.request_id==fk_id)
+        pull_request = PullRequest.query.get(fk_id)
         if comment:
-            return jsonify(list(map(lambda x: x.toDict(), comment)))
+            results=list(map(lambda x: x.toDict(), comment))
+            return render_template('comments.html',comments=results, request=pull_request)
         else:
             results = None
             return make_response(jsonify(results), 404)
@@ -143,7 +191,10 @@ def get_pull_reviews_by_id(fk_id):
     try:
         review=ReviewComment.query.filter(ReviewComment.request_id==fk_id)
         if review:
-            return jsonify(list(map(lambda x: x.toDict(), review)))
+            pull= PullRequest.query.get(fk_id)
+            print(pull)
+            results=(list(map(lambda x: x.toDict(), review)))
+            return render_template('review.html',reviews=results, request=pull)
         else:
             results = None
             return make_response(jsonify(results), 404)
@@ -163,11 +214,27 @@ def createReveiwComment(new_reveiw_comment):
         print(e)
         return {'error': 'Server encountered an error', "code": 500}
 
+def updateReviewComment(new_review,pk_id):
+    try:
+        review=ReviewComment.query.get(pk_id)
+        review.comment_content=new_review["comment_content"]
+        review.timestamp=func.now()
+        db.session.commit()
+        print(review.toDict())
+        return {"message":" Success", "code":202}
+    except Exception as e:
+        return {'error': 'Server encountered an error. ' + e, "code": 500}
+
 
 @app.route('/api/pull_requests/new_comment/<pk_id>', methods=['GET'])
 def make_new_comment(pk_id):
     pull_request = PullRequest.query.get(pk_id)
     return render_template('form.html', pull_request=pull_request)
+
+@app.route('/api/pull_requests/update_comment/<pk_id>', methods=['GET'])
+def update_comment(pk_id):
+    review = ReviewComment.query.get(pk_id)
+    return render_template('form.html', review=review, pull_request=None)
 
 @app.route('/api/pull_requests/process_comment/<fk_id>', methods=['POST', 'GET'])
 def process_form(fk_id):
@@ -176,6 +243,16 @@ def process_form(fk_id):
         if result['code']==201:
             print(make_response(jsonify(result)))
             return get_pull_reviews_by_id(fk_id)
+    return make_response(jsonify({'error': 'Server encountered an error'}),500)
+
+@app.route('/api/pull_requests/process_update/<pk_id>', methods=['POST', 'GET'])
+def update_form(pk_id):
+    if request.content_type  == 'application/x-www-form-urlencoded': 
+        result=updateReviewComment(request.form,pk_id)
+        if result['code']==202:
+            rvw=ReviewComment.query.get(pk_id)
+            print(make_response(jsonify(result)))
+            return get_pull_reviews_by_id(rvw.request_id)
     return make_response(jsonify({'error': 'Server encountered an error'}),500)
 
 @app.route('/api/pull_requests/<fk_id>/review_comment/<pk_id>/delete', methods=['DELETE', 'GET'])
@@ -189,16 +266,6 @@ def delete_review_comment(fk_id, pk_id):
     except Exception as  e:
         print({"message":"Database error", "code":500})
     return get_pull_reviews_by_id(fk_id)
-
-@app.route('/api/login', methods=['POST'])
-def api_create_person():
-    data = None
-    if request.content_type  == 'application/x-www-form-urlencoded':
-        data = request.form
-        global g
-    elif request.content_type == 'application/json':
-        data = request.json
-    return jsonify(createLogin(data))# call createPerson on data an jsonify its response
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True, use_reloader=True)
