@@ -118,6 +118,19 @@ def show_all_pull_requests():
     response = records
     return render_template('request.html', requests=records)
 
+@app.route('/api/all_pull_requests', methods=['GET'])
+def get_all_pull_requests():
+    query = PullRequest.query.order_by(PullRequest.id.asc())
+    start = request.args.get('offset', default=1, type=int)
+    num_records = request.args.get('limit', default=10, type=int)
+
+    records = query.paginate(start, num_records).items
+    records = list(map(lambda x: x.toDict(), records))
+    print(len(records))
+    print(records)
+    return jsonify(records)
+
+
 @app.route('/api/comments', methods=['GET'])
 def show_all_comments():
     query = Comment.query.order_by(Comment.id.asc())
