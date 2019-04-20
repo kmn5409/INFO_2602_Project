@@ -27,6 +27,7 @@ class PullRequest(Entity,db.Model):
 
     def fromJSON(self,pull_request):
         self.repos_author = pull_request.base.repo.owner.login
+        #self.repo = repo
         self.author_name = pull_request.user.login #Need to verify if this is the author
         self.pull_request_message = pull_request.title
         self.pull_request_comment = pull_request.body
@@ -38,11 +39,10 @@ class PullRequest(Entity,db.Model):
         repre = Entity.toDict(self)
         repre.update({
             'id':self.id,
-            'repos_author':self.repos_author,
+            'repository_owner':self.repos_author,
             'author_name':self.author_name,
-            'pull_request_message' : self.pull_request_message,
             'pull_request_comment': self.pull_request_comment,
-            'pull_request_comment' : self.pull_request_comment,
+            'pull_request_message' : self.pull_request_message,
             'author_name':self.author_name,  
             'timestamp':  self.timestamp,
             'url':self.url
@@ -97,7 +97,6 @@ class ReviewComment(db.Model):
             'timestamp':self.timestamp,
             'request_id':self.request_id
         }
-            
 
 def load_file_into_table(target1, connection, **kw):
     import json
@@ -131,3 +130,4 @@ def load_file_into_table(target1, connection, **kw):
 
 
 listen(Comment.__table__,  'after_create', load_file_into_table)
+
