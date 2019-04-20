@@ -1,41 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+{% extends "base.html" %}
+{% block content %}
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <title>Document</title>
-</head>
 
-<body>
     <div id="myDiv"></div>
 
     <script type="text/javascript">
         var data = [
-            /*{
-                x: ['2019-05-08 21:06:06'],
-                y: [1],
-                type: 'scatter',
-                name: 'Keanu Nichols',
-                text: ['hey']
-            },
-            {
-                x: ['2019-05-08 21:06:06', '2018-05-08 21:06:06'],
-                y: [2, 2],
-                type: 'scatter',
-                name: 'rahel',
-                text: ['hey']
-            },
-            {
-                x: ['2019-05-08 21:06:06'],
-                y: [3],
-                type: 'scatter',
-                name: 'Attonia',
-                text: ['hey']
-            }*/
         ];
         var layout = {
             title: {
@@ -68,10 +39,9 @@
                 }
             }
         };
-
         
         function retrieveData() {
-            const url = "https://desolate-journey-98758.herokuapp.com/api/all_pull_requests";
+            const url = "/api/all_pull_requests";
             console.log("Attempting to retrieve data from: " + url);
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
@@ -83,7 +53,6 @@
             xhttp.open("GET", url);
             xhttp.send();
         }
-
         function toData(jaonData) {
             let id = 1;
             let added = false;
@@ -112,9 +81,5 @@
             console.log(data);
         }
         retrieveData();
-
     </script>
-
-</body>
-
-</html>
+{% endblock %}
