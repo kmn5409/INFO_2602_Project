@@ -28,41 +28,47 @@ session = db.session
 from models.pull_request import PullRequest
 from models.pull_request import Comment
 from models.pull_request import ReviewComment
-#from models.pull_request import load_file_into_table
 from models.users import User
+    
 
-def load_file_into_table(target1, connection, **kw):
+def load_file_into_table(new_user):
     import json
-    g = Github("c5c1fb044b46cde5a102ae0f507309e01f68d593")
-    user = "kmn5409"
-    name = "Test"
     p = ""
     rID=0
-    for repo in g.get_user(user).get_repos():
-        if(repo.name == name):
-            for pull_request in repo.get_pulls():
-                #print("Message: ",i.commit.message[:])
-                p = PullRequest()
-                #print(i)
-                #print(i.commit.author.name)
-                p.fromJSON(pull_request)
-                print("Pull Request:")
-                db.session.add(p)
-                rID+=1
-                print(p.toDict())
-                for comment in pull_request.get_issue_comments():
-                    #print("Comments: \n\n",comment.body)
-                    c = Comment()
-                    #print(comment)
-                    c.fromJSON(comment,rID)
-                    #print("Before")
-                    db.session.add(c)
-                    print("Comment")
-                    print(c.toDict())
-        db.session.commit()
+    user=new_user['user_name']
+    name=new_user["repo_name"]
+    print(user)
+    print(name)
+    try:
+        for repo in g.get_user(user).get_repos():
+            print(repo.name)
+            if(repo.name == name):
+                for pull_request in repo.get_pulls():
+                    #print("Message: ",i.commit.message[:])
+                    p = PullRequest()
+                    #print(i)
+                    #print(i.commit.author.name)
+                    p.fromJSON(pull_request)
+                    print("Pull Request:")
+                    db.session.add(p)
+                    rID+=1
+                    print(p.toDict())
+                    for comment in pull_request.get_issue_comments():
+                        #print("Comments: \n\n",comment.body)
+                        c = Comment()
+                        #print(comment)
+                        c.fromJSON(comment,rID)
+                        #print("Before")
+                        db.session.add(c)
+                        print("Comment")
+                        print(c.toDict())
+                db.session.commit()
+                return {"message":'Repo created', "code":201}
+        return {"message":'Repo not found', "code":404}
+    except:
+        return {"message":'Repo not found', "code":404}
 
 
-listen(Comment.__table__,  'after_create', load_file_into_table)
 
 @app.before_first_request
 def setup():
@@ -85,31 +91,49 @@ def createLogin(new_person):
         return {"message":'Logged in', "code":201}
 
 #check log in status
-@app.route('/github')
+@app.route('/api')
 def github():
     try:
         name = g.get_user().login
     except:
         return render_template("login.html")
-    return name
+    return user_form()
 
 @app.route('/api/login', methods=['POST'])
 def api_create_person():
     data = None
     if request.content_type  == 'application/x-www-form-urlencoded':
         data = request.form
-        global g
     elif request.content_type == 'application/json':
         data = request.json
-    return jsonify(createLogin(data))# call createPerson on data an jsonify its response
+    result=jsonify(createLogin(data))# call createPerson on data an jsonify its response
+    print(result)
+    return github()
+
+@app.route("/api/load_repos", methods=["POST"])
+def find_repos():
+    data = None
+    if request.content_type  == 'application/x-www-form-urlencoded':
+        data = request.form
+    elif request.content_type == 'application/json':
+        data = request.json
+    result=load_file_into_table(data)
+    if result['code']==201:
+        print(result)
+        return show_all_pull_requests()
+    print(result)
+    return render_template("get_user.html", message="Seems like that isn't a valid repository.")
+
+
+@app.route('/api/get_repos')
+def user_form():
+    return render_template("get_user.html", message=None)
 
 @app.route('/api/pull_requests', methods=['GET'])
 def show_all_pull_requests():
-    query = PullRequest.query.order_by(PullRequest.id.asc())
-    
+    query = PullRequest.query.order_by(PullRequest.id.asc())    
     start = request.args.get('offset', default=1, type=int)
     num_records = request.args.get('limit', default=10, type=int)
-
     records = query.paginate(start, num_records).items
     records = list(map(lambda x: x.toDict(), records))
     print(len(records))
