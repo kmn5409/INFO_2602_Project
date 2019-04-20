@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+<div>
+        <div class="row">
+        <div>
+            <h1>Sign In</h1>
+        </div>
+    </div>
+    <div class="row">
+        <fieldset>
+            <legend>Sign In With Github</legend>
+            <form id="createForm">
+              <div class="form-group">
+                <label for="nameText" class="bmd-label-floating">Name</label>
+                <input type="text" name="name" class="form-control" id="nameText">
+                <span class="bmd-help">User Name</span>
+              </div>
+              <div class="form-group">
+                <label for="passwordText" class="bmd-label-floating">Password</label>
+                <input type="password" name="password" class="form-control" id="passwordText">
+              </div>
+              <input type="button" value="submit" onclick="createRecord()" class="btn btn-primary btn-raised">
+            </form>
+        </fieldset>
+    </div>
+</div>
+
+<script>
+        let host = "http://127.0.0.1:8000";
+        function clearForm(id){
+                let form = document.querySelector(`#${id}`);
+                for(let key in form.elements)
+                    form.elements[key]="";
+        }
+        function ajaxGet(url, callback){
+                let xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                  if (this.readyState == 4 && this.status == 200) {
+                    callback(JSON.parse('{"name":"keanu"}'));//any function passed will be called with the requestd data passed to it
+                  }
+                };
+                xhr.open("GET", url);
+                xhr.send();
+        }
+        function ajaxPost(url, data, callback){
+                let xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                  if (this.readyState == 4 && this.status == 200) {
+                    callback(JSON.parse(this.responseText));//IMPORTANT json string must be convertd to js object
+                  }
+                };
+                xhr.open("POST", url);
+                xhr.setRequestHeader("Content-type", "application/json");
+                xhr.send(JSON.stringify(data));//IMPORTANT json data must be stringified
+        }
+        function createRecord(){
+                let form = document.querySelector("#createForm");
+            	let record = {
+            		name: form.elements['name'].value,
+            		password: form.elements['password'].value
+            	};
+            	clearForm("createForm");
+                ajaxPost(`${host}/api/login`, record, loadRecords);//send data and redo templating to reflect changes
+        }
+        function recordsHandler(records){
+                let k = 1;
+            }
+        function loadRecords(){
+                console.log("loading records");
+                ajaxGet(`${host}/api/pull_requests`, recordsHandler);
+        }
+        window.addEventListener('load', function() {
+                console.log('All assets are loaded');
+                loadRecords();//load our records
+            
+        })
+</script>
+
+{% endblock %}    
