@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="myDiv"></div>
+
+    <script type="text/javascript">
+        var data = [
+            /*{
+                x: ['2019-05-08 21:06:06'],
+                y: [1],
+                type: 'scatter',
+                name: 'Keanu Nichols',
+                text: ['hey']
+            },
+            {
+                x: ['2019-05-08 21:06:06', '2018-05-08 21:06:06'],
+                y: [2, 2],
+                type: 'scatter',
+                name: 'rahel',
+                text: ['hey']
+            },
+            {
+                x: ['2019-05-08 21:06:06'],
+                y: [3],
+                type: 'scatter',
+                name: 'Attonia',
+                text: ['hey']
+            }*/
+        ];
+        var layout = {
+            title: {
+                text: 'Plot Title',
+                font: {
+                    family: 'Courier New, monospace',
+                    size: 24
+                },
+                xref: 'paper',
+                x: 0.05,
+            },
+            xaxis: {
+                title: {
+                    text: 'x Axis',
+                    font: {
+                        family: 'Courier New, monospace',
+                        size: 18,
+                        color: '#7f7f7f'
+                    }
+                },
+            },
+            yaxis: {
+                title: {
+                    text: 'y Axis',
+                    font: {
+                        family: 'Courier New, monospace',
+                        size: 18,
+                        color: '#7f7f7f'
+                    }
+                }
+            }
+        };
+
+        
+        function retrieveData() {
+            const url = "https://desolate-journey-98758.herokuapp.com/api/all_pull_requests";
+            console.log("Attempting to retrieve data from: " + url);
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    let jaonData = JSON.parse(this.responseText);
+                    toData(jaonData);
+                }
+            };
+            xhttp.open("GET", url);
+            xhttp.send();
+        }
+
+        function toData(jaonData) {
+            let id = 1;
+            let added = false;
+            for (let x in jaonData) {
+                for (let y in data) {
+                    if (jaonData[x].author_name === data[y].name) {
+                        //data[y].x.push(jaonData[x].date_created);
+                        let newDate = new Date(jaonData[x].timestamp);
+                       
+                        data[y].x.push(newDate);
+                        data[y].y.push(data[y].y[0]);
+                        data[y].text.push("Comment: "+jaonData[x].pull_request_comment + "     Message: " +jaonData[x].pull_request_message);
+                        added = true;
+                    }
+                }
+                if (added === false) {
+                    data.push({ x: [jaonData[x].date_created], y: [id], name: jaonData[x].author_name, type: 'scatter', text: [jaonData[x].commit_message] });
+                    id++;
+                }
+                added = false;
+            }
+            updateGraph();
+        }
+        function updateGraph() {
+            Plotly.newPlot('myDiv', data, layout);
+            console.log(data);
+        }
+        retrieveData();
+
+    </script>
+
+</body>
+
+</html>
