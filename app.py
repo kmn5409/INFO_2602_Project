@@ -17,6 +17,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///Requests.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'so unsecured'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+# Setting up Logging Functionality (using file-based logging)
+logHandler = RotatingFileHandler('info.log', maxBytes=1000, backupCount=1)
+logHandler.setLevel(logging.INFO)
+app.logger.setLevel(logging.INFO)
+app.logger.addHandler(logHandler)
+log = app.logger
+
 # enable CORS on all the routes that start with /api
 CORS(app, resources={r"/*": {"origins": "*"}})
 g = Github()
@@ -30,6 +38,22 @@ from models.pull_request import Comment
 from models.pull_request import ReviewComment
 from models.users import User
     
+def authenticate():
+    """
+    The Authenticate function is used primarily by the JWT library to determine if submitted credentials match
+    :param username: Unique username for the user
+    :param password: Password used to verify user account
+    :return: returns an instance of the user model
+    """
+    try:
+        # Fetch user using the username (case insensitive search)
+        name = g.get_user().login
+        print(name)
+        return True
+    except Exception as e:
+        log.error("Authenticate: {0}".format(e))
+    # We failed authentication either due to incorrect credentials or server error
+    return False
 
 def load_file_into_table(new_user):
     import json
@@ -127,7 +151,7 @@ def find_repos():
 
 @app.route('/api/get_repos')
 def user_form():
-    return render_template("get_user.html", message=None)
+    return render_template("get_user.html", message="")
 
 @app.route('/api/pull_requests', methods=['GET'])
 def show_all_pull_requests():
@@ -263,13 +287,21 @@ def updateReviewComment(new_review,pk_id):
         return {'error': 'Server encountered an error. ' + e, "code": 500}
 
 
+@app.route('/protected')
 @app.route('/api/pull_requests/new_comment/<pk_id>', methods=['GET'])
 def make_new_comment(pk_id):
+    if(authenticate() == False):
+        print("Here")
+        return render_template("login.html")
     pull_request = PullRequest.query.get(pk_id)
     return render_template('form.html', pull_request=pull_request)
 
+@app.route('/protected')
 @app.route('/api/pull_requests/update_comment/<pk_id>', methods=['GET'])
 def update_comment(pk_id):
+    if(authenticate() == False):
+        print("Here")
+        return render_template("login.html")
     review = ReviewComment.query.get(pk_id)
     return render_template('form.html', review=review, pull_request=None)
 
