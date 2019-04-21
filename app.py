@@ -72,7 +72,7 @@ def load_file_into_table(new_user):
                     p = PullRequest()
                     #print(i)
                     #print(i.commit.author.name)
-                    p.fromJSON(pull_request)
+                    p.fromJSON(pull_request,repo.name)
                     print("Pull Request:")
                     db.session.add(p)
                     rID+=1
