@@ -336,5 +336,17 @@ def delete_review_comment(fk_id, pk_id):
         print({"message":"Database error", "code":500})
     return get_pull_reviews_by_id(fk_id)
 
+@app.route('/api/pull_requests/post_comment/<pk_id>', methods=['POST', 'GET'])
+def post_comment(pk_id):
+    review_comment = ReviewComment.query.get(pk_id)
+    fk_id = review_comment.request_id
+    pull_request = PullRequest.query.get(review_comment.request_id)
+    g.get_user(g.get_user().login).get_repo(pull_request.repo_name).get_pull(pull_request.number).create_issue_comment(review_comment.comment_content)
+    db.session.delete(review_comment)
+    print("deleted reveiw.")
+    db.session.commit()
+    print(pk_id)
+    return get_pull_reviews_by_id(fk_id)
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True, use_reloader=True)
