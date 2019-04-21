@@ -58,7 +58,8 @@ class Comment(db.Model):
     id = Column(Integer, primary_key=True, autoincrement="auto")
     commentor_name = Column(String(50))
     comment_content = Column(String(5000))
-    timestamp = Column(DateTime())    
+    timestamp = Column(DateTime()) 
+    comment_id = Column(Integer)  
     #request_id = Column(Integer, ForeignKey('pullRequest.id'))
     request_id = Column(Integer, ForeignKey('pullRequest.id'), nullable=False)
 
@@ -70,6 +71,7 @@ class Comment(db.Model):
         
         self.commentor_name = comment.user.login
         self.comment_content = comment.body
+        self.comment_id = comment.id
         self.timestamp = comment.created_at
         self.request_id = id1
 
@@ -79,6 +81,7 @@ class Comment(db.Model):
             'id':self.id,
             'commentor_name':self.commentor_name,
             'comment_content':self.comment_content,
+            'comment_id':self.comment_id,
             'timestamp':self.timestamp,
             'request_id':self.request_id
         }
