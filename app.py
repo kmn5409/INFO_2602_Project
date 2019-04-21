@@ -348,5 +348,27 @@ def post_comment(pk_id):
     print(pk_id)
     return get_pull_reviews_by_id(fk_id)
 
+@app.route('/api/pull_requests/<pk_id>/delete',methods=['GET','DELETE'])
+def delete_comment(pk_id):
+    comment = Comment.query.get(pk_id)
+    pull_request = PullRequest.query.get(comment.request_id)
+    user_name = g.get_user().login
+    if(comment.commentor_name != pull_request.repos_author and comment.comment_content != user_name):
+        if comment:
+            results=list(map(lambda x: x.toDict(), comment))
+            return render_template('comments.html',comments=results, request=pull_request)
+    g.get_user(user_name).get_repo(pull_request.repo_name).get_pull(pull_request.number).get_issue_comment(comment.comment_id).delete()
+    db.session.delete(comment)
+    print("Deleted comment")
+    db.session.commit()
+    comment=Comment.query.filter(Comment.request_id==pk_id)
+    pull_request = PullRequest.query.get(pk_id)
+    if comment:
+        results=list(map(lambda x: x.toDict(), comment))
+        return render_template('comments.html',comments=results, request=pull_request)
+    else:
+        results = None
+        return make_response(jsonify(results), 404)
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True, use_reloader=True)
