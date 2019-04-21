@@ -11,6 +11,7 @@ class PullRequest(Entity,db.Model):
     __tablename__ = 'pullRequest'
     #id = Column(Integer,primary_key=True,autoincrement='auto')
     repos_author = Column(String(50))
+    repo_name = Column(String(100))
     #repo = Column(String(100))
     author_name = Column(String(50))
     pull_request_message = Column(String(5000))
@@ -27,6 +28,7 @@ class PullRequest(Entity,db.Model):
 
     def fromJSON(self,pull_request):
         self.repos_author = pull_request.base.repo.owner.login
+        self.repo_name = repo_name
         #self.repo = repo
         self.author_name = pull_request.user.login #Need to verify if this is the author
         self.pull_request_message = pull_request.title
@@ -39,6 +41,7 @@ class PullRequest(Entity,db.Model):
         repre = Entity.toDict(self)
         repre.update({
             'id':self.id,
+            'repo_name':self.repo_name,
             'repository_owner':self.repos_author,
             'author_name':self.author_name,
             'pull_request_comment': self.pull_request_comment,
