@@ -348,7 +348,7 @@ def post_comment(pk_id):
     print(pk_id)
     return get_pull_reviews_by_id(fk_id)
 
-@app.route('/api/pull_requests/<pk_id>/delete',methods=['GET','DELETE'])
+@app.route('/api/pull_requests/<pk_id>/comment/delete',methods=['GET','DELETE'])
 def delete_comment(pk_id):
     comment = Comment.query.get(pk_id)
     pull_request = PullRequest.query.get(comment.request_id)
