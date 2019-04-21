@@ -48,7 +48,7 @@ def authenticate():
     try:
         # Fetch user using the username (case insensitive search)
         name = g.get_user().login
-        print(name)
+        #print(name)
         return True
     except Exception as e:
         log.error("Authenticate: {0}".format(e))
@@ -61,18 +61,15 @@ def load_file_into_table(new_user):
     rID=0
     user=new_user['user_name']
     name=new_user["repo_name"]
-    print(user)
-    print(name)
     try:
         for repo in g.get_user(user).get_repos():
-            print(repo.name)
             if(repo.name == name):
+                print(repo.name)
                 for pull_request in repo.get_pulls():
-                    #print("Message: ",i.commit.message[:])
+                    print(1)
                     p = PullRequest()
-                    #print(i)
-                    #print(i.commit.author.name)
                     p.fromJSON(pull_request,repo.name)
+                    print(2)
                     print("Pull Request:")
                     db.session.add(p)
                     rID+=1
@@ -90,15 +87,13 @@ def load_file_into_table(new_user):
                 return {"message":'Repo created', "code":201}
         return {"message":'Repo not found', "code":404}
     except:
-        return {"message":'Repo not found', "code":404}
-
+        return {"Exception message":'Repo not found', "code":404}
 
 
 @app.before_first_request
 def setup():
     db.Model.metadata.drop_all(bind=db.engine)
     db.Model.metadata.create_all(bind=db.engine)
-
 
 @app.route('/')
 def hello():
@@ -130,9 +125,12 @@ def api_create_person():
         data = request.form
     elif request.content_type == 'application/json':
         data = request.json
-    result=jsonify(createLogin(data))# call createPerson on data an jsonify its response
+    result=createLogin(data)# call createPerson on data an jsonify its response
     print(result)
-    return github()
+    if result['code']==201:
+        return user_form()
+    return render_template("login.html")
+
 
 @app.route("/api/load_repos", methods=["POST"])
 def find_repos():
@@ -148,9 +146,12 @@ def find_repos():
     print(result)
     return render_template("get_user.html", message="Seems like that isn't a valid repository.")
 
-
+@app.route('/protected')
 @app.route('/api/get_repos')
 def user_form():
+    if(authenticate() == False):
+        print("Here")
+        return render_template("login.html")
     return render_template("get_user.html", message="")
 
 @app.route('/api/pull_requests', methods=['GET'])
@@ -171,7 +172,6 @@ def get_all_pull_requests():
     query = PullRequest.query.order_by(PullRequest.id.asc())
     start = request.args.get('offset', default=1, type=int)
     num_records = request.args.get('limit', default=10, type=int)
-
     records = query.paginate(start, num_records).items
     records = list(map(lambda x: x.toDict(), records))
     print(len(records))
@@ -182,10 +182,8 @@ def get_all_pull_requests():
 @app.route('/api/comments', methods=['GET'])
 def show_all_comments():
     query = Comment.query.order_by(Comment.id.asc())
-    
     start = request.args.get('offset', default=1, type=int)
     num_records = request.args.get('limit', default=10, type=int)
-
     records = query.paginate(start, num_records).items
     records = list(map(lambda x: x.toDict(), records))
     print(len(records))
@@ -300,7 +298,7 @@ def make_new_comment(pk_id):
 @app.route('/api/pull_requests/update_comment/<pk_id>', methods=['GET'])
 def update_comment(pk_id):
     if(authenticate() == False):
-        print("Here")
+        print("Authentication failed")
         return render_template("login.html")
     review = ReviewComment.query.get(pk_id)
     return render_template('form.html', review=review, pull_request=None)
@@ -324,6 +322,14 @@ def update_form(pk_id):
             return get_pull_reviews_by_id(rvw.request_id)
     return make_response(jsonify({'error': 'Server encountered an error'}),500)
 
+@app.route('/protected')
+@app.route('/api/pull_requests/stats')
+def return_stats():
+    if(authenticate() == False):
+        print("Authentication failed")
+        return render_template("login.html")
+    return render_template('stats.html') 
+
 @app.route('/api/pull_requests/<fk_id>/review_comment/<pk_id>/delete', methods=['DELETE', 'GET'])
 def delete_review_comment(fk_id, pk_id):
     try:
@@ -336,39 +342,34 @@ def delete_review_comment(fk_id, pk_id):
         print({"message":"Database error", "code":500})
     return get_pull_reviews_by_id(fk_id)
 
-@app.route('/api/pull_requests/post_comment/<pk_id>', methods=['POST', 'GET'])
+@app.route('/api/pull_requests/<pk_id>/comment/delete',methods=['GET','DELETE'])
+def delete_comment(pk_id):
+    comment = Comment.query.get(pk_id)
+    pull_request = PullRequest.query.get(comment.request_id)
+    user_name = g.get_user().login
+    if(comment.commentor_name != user_name and pull_request.repos_author != user_name and pull_request.author_name!=user_name):
+        if comment:
+            print('Here!') #needs to go to error page
+            return get_pull_comments_by_id(pull_request.id)
+    print(pull_request.repo_name)
+    g.get_user(pull_request.repos_author).get_repo(pull_request.repo_name).get_pull(pull_request.number).get_issue_comment(comment.comment_id).delete()
+    db.session.delete(comment)
+    print("Deleted comment")
+    db.session.commit()
+    return get_pull_comments_by_id(pull_request.id)
+
+@app.route ('/api/pull_requests/post_comment/<pk_id>', methods=['POST', 'GET'])
 def post_comment(pk_id):
     review_comment = ReviewComment.query.get(pk_id)
     fk_id = review_comment.request_id
     pull_request = PullRequest.query.get(review_comment.request_id)
-    g.get_user(g.get_user().login).get_repo(pull_request.repo_name).get_pull(pull_request.number).create_issue_comment(review_comment.comment_content)
+    g.get_user(pull_request.repos_author).get_repo(pull_request.repo_name).get_pull(pull_request.number).create_issue_comment(review_comment.comment_content)
     db.session.delete(review_comment)
     print("deleted reveiw.")
     db.session.commit()
     print(pk_id)
     return get_pull_reviews_by_id(fk_id)
 
-@app.route('/api/pull_requests/<pk_id>/comment/delete',methods=['GET','DELETE'])
-def delete_comment(pk_id):
-    comment = Comment.query.get(pk_id)
-    pull_request = PullRequest.query.get(comment.request_id)
-    user_name = g.get_user().login
-    if(comment.commentor_name != pull_request.repos_author and comment.comment_content != user_name):
-        if comment:
-            results=list(map(lambda x: x.toDict(), comment))
-            return render_template('comments.html',comments=results, request=pull_request)
-    g.get_user(user_name).get_repo(pull_request.repo_name).get_pull(pull_request.number).get_issue_comment(comment.comment_id).delete()
-    db.session.delete(comment)
-    print("Deleted comment")
-    db.session.commit()
-    comment=Comment.query.filter(Comment.request_id==pk_id)
-    pull_request = PullRequest.query.get(pk_id)
-    if comment:
-        results=list(map(lambda x: x.toDict(), comment))
-        return render_template('comments.html',comments=results, request=pull_request)
-    else:
-        results = None
-        return make_response(jsonify(results), 404)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True, use_reloader=True)
