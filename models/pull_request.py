@@ -26,7 +26,7 @@ class PullRequest(Entity,db.Model):
         super().__init__()
         Entity.__init__(self)
 
-    def fromJSON(self,pull_request):
+    def fromJSON(self,pull_request,repo_name):
         self.repos_author = pull_request.base.repo.owner.login
         self.repo_name = repo_name
         #self.repo = repo
