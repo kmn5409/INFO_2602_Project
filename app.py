@@ -354,7 +354,7 @@ def delete_comment(pk_id):
     pull_request = PullRequest.query.get(comment.request_id)
     user_name = g.get_user().login
     if(comment.commentor_name != user_name and pull_request.repos_author != user_name and pull_request.author_name!=user_name):
-        render_template("error.html",error="Doesn't seem like you have enough priviliges to do this. 403")
+        return render_template("error.html",error="Doesn't seem like you have enough priviliges to do this. 403")
     g.get_user(pull_request.repos_author).get_repo(pull_request.repo_name).get_pull(pull_request.number).get_issue_comment(comment.comment_id).delete()
     db.session.delete(comment)
     print("Deleted comment")
