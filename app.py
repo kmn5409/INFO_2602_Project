@@ -355,7 +355,6 @@ def delete_comment(pk_id):
     user_name = g.get_user().login
     if(comment.commentor_name != user_name and pull_request.repos_author != user_name and pull_request.author_name!=user_name):
         render_template("error.html",error="Doesn't seem like you have enough priviliges to do this. 403")
-    print(pull_request.repo_name)
     g.get_user(pull_request.repos_author).get_repo(pull_request.repo_name).get_pull(pull_request.number).get_issue_comment(comment.comment_id).delete()
     db.session.delete(comment)
     print("Deleted comment")
@@ -378,6 +377,9 @@ def post_comment(pk_id):
     print(pk_id)
     return get_pull_reviews_by_id(fk_id)
 
+@app.route('/api/about')
+def get_about():
+    return render_template("about.html")
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True, use_reloader=True)
