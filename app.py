@@ -57,6 +57,8 @@ def authenticate():
 
 def load_file_into_table(new_user):
     import json
+    db.Model.metadata.drop_all(bind=db.engine)
+    db.Model.metadata.create_all(bind=db.engine)
     p = ""
     rID=0
     user=new_user['user_name']
@@ -228,10 +230,10 @@ def get_pull_comments_by_id(fk_id):
             return render_template('comments.html',comments=results, request=pull_request)
         else:
             results = None
-            return make_response(jsonify(results), 404)
+            return render_template("error.html", error="We couldn't find that.  404")
     except Exception as e:
         print(e)
-        return make_response(jsonify({'error': 'Server encountered an error'}),500)
+        return render_template("error.html", error="Server error.  500")
 
 @app.route('/api/review_comments', methods=['GET'])
 def show_all_review_comments():
@@ -256,10 +258,10 @@ def get_pull_reviews_by_id(fk_id):
             return render_template('review.html',reviews=results, request=pull)
         else:
             results = None
-            return make_response(jsonify(results), 404)
+            return render_template("error.html", error="We couldn't find that.  404")
     except Exception as e:
         print(e)
-        return make_response(jsonify({'error': 'Server encountered an error'}),500)
+        return render_template("error.html", error="Server error.  500")
 
 def createReveiwComment(new_reveiw_comment):
     try:
@@ -342,15 +344,17 @@ def delete_review_comment(fk_id, pk_id):
         print({"message":"Database error", "code":500})
     return get_pull_reviews_by_id(fk_id)
 
+@app.route('/protected')
 @app.route('/api/pull_requests/<pk_id>/comment/delete',methods=['GET','DELETE'])
 def delete_comment(pk_id):
+    if(authenticate() == False):
+        print("Authentication failed")
+        return render_template("login.html")
     comment = Comment.query.get(pk_id)
     pull_request = PullRequest.query.get(comment.request_id)
     user_name = g.get_user().login
     if(comment.commentor_name != user_name and pull_request.repos_author != user_name and pull_request.author_name!=user_name):
-        if comment:
-            print('Here!') #needs to go to error page
-            return get_pull_comments_by_id(pull_request.id)
+        render_template("error.html",error="Doesn't seem like you have enough priviliges to do this. 403")
     print(pull_request.repo_name)
     g.get_user(pull_request.repos_author).get_repo(pull_request.repo_name).get_pull(pull_request.number).get_issue_comment(comment.comment_id).delete()
     db.session.delete(comment)
@@ -358,8 +362,12 @@ def delete_comment(pk_id):
     db.session.commit()
     return get_pull_comments_by_id(pull_request.id)
 
+@app.route('/protected')
 @app.route ('/api/pull_requests/post_comment/<pk_id>', methods=['POST', 'GET'])
 def post_comment(pk_id):
+    if(authenticate() == False):
+        print("Authentication failed")
+        return render_template("login.html")
     review_comment = ReviewComment.query.get(pk_id)
     fk_id = review_comment.request_id
     pull_request = PullRequest.query.get(review_comment.request_id)
