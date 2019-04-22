@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<button onclick="location.href='/api/pull_requests/new_comment/{{request.id}}'">New Review</button>
+<button class="btn btn-primary active" onclick="location.href='/api/pull_requests/new_comment/{{request.id}}'">New Review</button>
 <h2>Showing Reviews for Pull Request {{request.id}}: {{request.pull_request_message}}</h2>
     <br/>
     <div class="row">
@@ -18,17 +18,17 @@
                         <td>{{rvw.timestamp}}</td>
                         <td>{{rvw.comment_content}}</td>
                          <td>
-                            <a href='/api/pull_requests/update_comment/{{rvw.id}}' class="btn btn-primary">
+                            <a href='/api/pull_requests/update_comment/{{rvw.id}}' class="btn btn-primary"><span>Edit</span>
                                 <i class="fas fa-eye"></i>
                             </a>
                         </td>
                         <td>
-                            <a href='/api/pull_requests/post_comment/{{rvw.id}}' class="btn btn-primary">
+                            <a href='/api/pull_requests/post_comment/{{rvw.id}}' class="btn btn-primary"><span>Post</span>
                                 <i class="fas fa-eye"></i>
                             </a>
                         </td>
                         <td>
-                            <a href='/api/pull_requests/{{rvw.request_id}}/review_comment/{{rvw.id}}/delete' class="btn btn-primary">
+                            <a href='/api/pull_requests/{{rvw.request_id}}/review_comment/{{rvw.id}}/delete' class="btn btn-primary"><span>Delete</span>
                                 <i class="fas fa-eye"></i>
                             </a>
                         </td>

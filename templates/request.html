@@ -3,8 +3,7 @@
 {% block content %}
     <div class="row">
         <div class="col">
-        <button onclick="location.href='/api/get_repos'">Change Repository</button>
-        <button onclick="location.href='/api/pull_requests/stats'">See Statistics</button>
+        <button class="btn btn-primary active" onclick="location.href='/api/get_repos'">Change Repository</button>
             <table class="table table-striped table-hover">
                 <thead class="thead-dark">
                     <tr>
@@ -18,17 +17,17 @@
                         <td>{{rqst.pull_request_message}}</td>
                         <td>{{rqst.pull_request_comment}}</td>
                         <td>
-                            <a href='/api/request_comments/{{rqst.id}}' class="btn btn-primary">
+                            <a href='/api/request_comments/{{rqst.id}}' class="btn btn-primary"><span>Show</span>
                                 <i class="fas fa-eye"></i>
                             </a>
                         </td>
                         <td>
-                            <a href='/api/request_review_comments/{{rqst.id}}' class="btn btn-primary">
+                            <a href='/api/request_review_comments/{{rqst.id}}' class="btn btn-primary"><span>Show</span>
                                 <i class="fas fa-eye"></i>
                             </a>
                         </td>
                         <td>
-                            <a href={{rqst.url}} class="btn btn-primary">
+                            <a href={{rqst.url}} class="btn btn-primary"><span>Go</span>
                                 <i class="fas fa-eye"></i>
                             </a>
                         </td>

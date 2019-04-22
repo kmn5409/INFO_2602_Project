@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+    <title>About</title>
+
+<style>
+body, html{
+  height:100%;
+  margin:0;
+  font-size:16px;
+  font-family:"Lato", sans-serif;
+  font-weight:400;
+  line-height:1.8em;
+  color:#666;
+}
+.header {
+  /*background-color: gold;*/
+  color: gold;
+  background-color: black;
+  /*height: 900px;*/
+  padding: 30px;
+  text-align: center;
+}
+
+#navbar {
+	z-index: 500;
+	overflow: hidden;
+	text-align: left;
+    background-color: #333;
+    font-family: "Lato", sans-serif;
+}
+
+#navbar a {
+    float: left;
+  display: block;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+#navbar a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+#navbar a.active {
+  background-color: gold;
+  color: white;
+}
+
+#signIn{
+	float: right;
+}
+
+.dropbtn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.sticky {
+  position: fixed;
+  top: 0;
+  width: 100%
+}
+
+
+.sticky + .content {
+  padding-top: 60px;
+}
+
+    
+.container{
+    background-color: #f2f2f2;
+    height: 1000px;
+}
+
+.container h1{
+    text-align: center;
+}
+
+
+.pimg1, .pimg2, .pimg3{
+  position:relative;
+  opacity:0.70;
+  background-position:center;
+  background-size:cover;
+  background-repeat:no-repeat;
+
+  /*
+    fixed = parallax
+    scroll = normal
+  */
+  background-attachment:fixed;
+}
+
+.pimg1{
+  background-image:url('https://foxutech.com/wp-content/uploads/2018/09/github-universe.png');
+  min-height:100%;
+}
+
+.pimg2{
+  background-image:url('https://user-images.githubusercontent.com/17169802/37805134-4180de32-2e06-11e8-8e27-0d235561094d.png');
+  min-height:400px;
+}
+
+
+.section{
+  /*text-align:center;*/
+  padding:50px 80px;
+}
+
+.section-light{
+  background-color:black;
+  height: 80%;
+  color:#666;
+}
+
+.section-dark{
+  background-color:rgb(43, 43, 43);
+  height: 60%;
+  color:#ddd;
+}
+
+.ptext{
+  position:absolute;
+  top:50%;
+  width:100%;
+  text-align:center;
+  color:#000;
+  font-size:27px;
+  letter-spacing:8px;
+  text-transform:uppercase;
+}
+
+.ptext .border{
+  background-color:#111;
+  color:#fff;
+  padding:20px;
+}
+
+.ptext .border.trans{
+  background-color:transparent;
+}
+
+@media(max-width:568px){
+  .pimg1, .pimg2, .pimg3{
+    background-attachment:scroll;
+  }
+}
+
+.column h2{
+    color: gold;
+}
+
+/* BUTTON */
+.button {
+  display: inline-block;
+  border-radius: 4px;
+  background-color: gold;
+  border: none;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 28px;
+  padding: 20px;
+  width: 200px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.button span:after {
+  content: '\00bb';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.button:hover span {
+  padding-right: 25px;
+}
+
+.button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+
+</style>
+</head>
+
+<body>
+<!--References: https://www.w3schools.com/howto/tryit.asp?filename=tryhow_js_navbar_sticky-->
+
+	
+<div id="navbar">
+		<a class="navlink" href='/api/pull_requests'>Home</a>
+		<a class="active" class="navlink" href='/api/about'>About</a>
+		<a class="navlink" href='/api/pull_requests/stats'>Statistics</a>
+	</div>
+
+      <div class="pimg1">
+            <div class="ptext">
+                <span class="border">
+                    Pull.ly
+                </span>
+            </div>
+        </div>
+        
+        <section class="section section-light">       
+                <div class="column">
+                    <h2>WHAT IS PULL.LY?</h2>
+                        <p>Pull.ly is a free to use application that allows github users to sign into their account and view all their pull requests in one simple and easy to navigate centralized viewing platform. Users may view, comment, and review pull requests at their leisure.</p>
+                        <p>Users may manage pull requests, using the platform to review, post comments and moderate the comments on pull requests.</p>
+                        <p>The only way to learn how to use it is to try it out.  So, let's get started!</p>
+                </div>
+            </div>
+        </section>
+    
+        <div class="pimg2">
+            <div class="ptext">
+            <span class="border trans">
+                Never Stress Over A Pull Request Again
+            </span>
+            </div>
+        </div>
+    
+        <section class="section section-dark">
+      
+        <div class="row">
+            <div class="column">
+                <h2>Check Your Status Now:</h2>
+                <a href='/api/pull_requests' <button class="button" style="vertical-align:middle" href="base.html"><span>Visit Pull Manager</span></button></a>
+                <a href='/api/pull_requests/stats' <button class="button" style="vertical-align:middle"><span>Visit Statistics</span></button></a>
+            </div>
+        </div>
+      </section>
+    
+
+<script>
+
+window.onscroll = function() {myFunction()};
+
+var navbar = document.getElementById("navbar");
+var sticky = navbar.offsetTop;
+
+function myFunction() {
+  if (window.pageYOffset >= sticky) {
+    navbar.classList.add("sticky")
+  } else {
+    navbar.classList.remove("sticky");
+  }
+}
+</script>
+</body>
+</html>
