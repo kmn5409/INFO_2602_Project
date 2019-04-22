@@ -29,7 +29,6 @@ class PullRequest(Entity,db.Model):
     def fromJSON(self,pull_request,repo_name):
         self.repos_author = pull_request.base.repo.owner.login
         self.repo_name = repo_name
-        #self.repo = repo
         self.author_name = pull_request.user.login #Need to verify if this is the author
         self.pull_request_message = pull_request.title
         self.pull_request_comment = pull_request.body
@@ -103,5 +102,3 @@ class ReviewComment(db.Model):
             'timestamp':self.timestamp,
             'request_id':self.request_id
         }
-
-
