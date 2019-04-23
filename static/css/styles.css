@@ -4,7 +4,7 @@ body{
 
 .header {
   /*background-color: gold;*/
-  color: gold;
+  color: #ffc73a;
   background-image: url("https://www.cieh.org/media/1729/mar14_gdpr-campaign_slider-banner-1600x500.gif?crop=0,0,0,0&cropmode=percentage&width=1600&height=500&rnd=131716255240000000");
   padding-top: 90px;
   height: 400px;
@@ -35,7 +35,7 @@ body{
 }
 
 #navbar a.active {
-  background-color: gold;
+  background-color: #ffc73a;
   color: white;
 }
 
