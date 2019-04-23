@@ -1,85 +1,193 @@
 {% extends "base.html" %}
 {% block content %}
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-    <div id="myDiv"></div>
+<div id="myDiv"></div>
+<button onclick="retrieveData('mnth')">Month</button>
+<button onclick="retrieveData('day')">Day</button>
+<button onclick="retrieveData('hr')">Hour</button>
+<!--<button onclick="update()">Update</button>-->
 
-    <script type="text/javascript">
-        var data = [
-        ];
-        var layout = {
+<script type="text/javascript">
+
+    data = [
+        {
+            x: [],
+            y: [],
+            type: 'scatter',
+            name: '',
+            text: []
+        }
+    ];
+    var layout = {
+        title: {
+            text: 'Pull Request Graph',
+            font: {
+                family: 'Courier New, monospace',
+                size: 24
+            },
+            xref: 'paper',
+            x: 0.05,
+        },
+        xaxis: {
             title: {
-                text: 'Plot Title',
+                text: 'Date',
                 font: {
                     family: 'Courier New, monospace',
-                    size: 24
-                },
-                xref: 'paper',
-                x: 0.05,
-            },
-            xaxis: {
-                title: {
-                    text: 'x Axis',
-                    font: {
-                        family: 'Courier New, monospace',
-                        size: 18,
-                        color: '#7f7f7f'
-                    }
-                },
-            },
-            yaxis: {
-                title: {
-                    text: 'y Axis',
-                    font: {
-                        family: 'Courier New, monospace',
-                        size: 18,
-                        color: '#7f7f7f'
-                    }
+                    size: 18,
+                    color: '#7f7f7f'
                 }
+            },
+        },
+        yaxis: {
+            tickmode: "linear", //  If "linear", the placement of the ticks is determined by a starting position `tick0` and a tick step `dtick`
+            tick0: 0,
+            dtick: 1,
+            title: {
+                text: 'Pull Request',
+                font: {
+                    family: 'Courier New, monospace',
+                    size: 18,
+                    color: '#7f7f7f'
+                }
+            }
+        }
+    };
+
+    let jaonData = "";
+    function retrieveData(range) {
+        //const url = "https://desolate-journey-98758.herokuapp.com/api/all_pull_requests";
+        //const url = "file:///C:/Users/Rahel/Desktop/graph/stats.html";
+        const url = "/api/all_pull_requests";
+        console.log("Attempting to retrieve data from: " + url);
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                jaonData = JSON.parse(this.responseText);
+                toData(jaonData, range);
             }
         };
-        
-        function retrieveData() {
-            const url = "/api/all_pull_requests";
-            console.log("Attempting to retrieve data from: " + url);
-            var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    let jaonData = JSON.parse(this.responseText);
-                    toData(jaonData);
+        xhttp.open("GET", url);
+        xhttp.send();
+    }
+    function month(jsonData, newDate) {
+        let dateCount = 0;
+        for (let y in jsonData) {
+            let newDate1 = new Date(jsonData[y].timestamp);
+            if (newDate.getUTCFullYear() === newDate1.getUTCFullYear()) {
+                if (newDate.getMonth() === newDate1.getMonth()) {
+                    dateCount++;
                 }
-            };
-            xhttp.open("GET", url);
-            xhttp.send();
+            }
         }
-        function toData(jaonData) {
-            let id = 1;
-            let added = false;
-            for (let x in jaonData) {
-                for (let y in data) {
-                    if (jaonData[x].author_name === data[y].name) {
-                        //data[y].x.push(jaonData[x].date_created);
-                        let newDate = new Date(jaonData[x].timestamp);
-                       
-                        data[y].x.push(newDate);
-                        data[y].y.push(data[y].y[0]);
-                        data[y].text.push("Comment: "+jaonData[x].pull_request_comment + "     Message: " +jaonData[x].pull_request_message);
-                        added = true;
+        return dateCount;
+    }
+
+    function day(jsonData, newDate) {
+        let dateCount = 0;
+        for (let y in jsonData) {
+            let newDate1 = new Date(jsonData[y].timestamp);
+            if (newDate.getUTCFullYear() === newDate1.getUTCFullYear()) {
+                if (newDate.getMonth() === newDate1.getMonth()) {
+                    if (newDate.getDate() == newDate1.getDate()) {
+                        dateCount++;
                     }
                 }
-                if (added === false) {
-                    data.push({ x: [jaonData[x].date_created], y: [id], name: jaonData[x].author_name, type: 'scatter', text: [jaonData[x].commit_message] });
-                    id++;
-                }
-                added = false;
             }
+        }
+        return dateCount;
+    }
+
+    function hour(jsonData, newDate) {
+        let dateCount = 0;
+        for (let y in jsonData) {
+            let newDate1 = new Date(jsonData[y].timestamp);
+            if (newDate.getUTCFullYear() === newDate1.getUTCFullYear()) {
+                if (newDate.getMonth() === newDate1.getMonth()) {
+                    if (newDate.getDate() == newDate1.getDate()) {
+                        if (newDate.getHours() === newDate1.getHours()) {
+                            dateCount++;
+                        }
+                    }
+                }
+            }
+        }
+        return dateCount;
+    }
+
+    function updateGraphRange(range) {
+        toData(jaonData, range);
+    }
+    function update() {
+        Plotly.redraw('myDiv');
+    }
+
+    function toData(jaonData, range) {
+        let checkedDates = [];
+        let checkedDate = false;
+        let dateCount = 0;
+        console.log(checkedDates);
+        for (let c in data) {
+            data.pop();
+        }
+        data = [
+            {
+                x: [],
+                y: [],
+                type: 'scatter',
+                name: '',
+                text: []
+            }
+        ];
+        let x = 0;
+        for (let x in jaonData) {
+            let newDate = new Date(jaonData[x].timestamp);
+            for (let j in checkedDates) {
+                if (jaonData[x].timestamp === checkedDates[j]) {
+                    checkedDate = true;
+                }
+            }
+            if (checkedDate === false) {
+                checkedDates.push(jaonData[x].timestamp);
+                if (range === 'hr') {
+                    dateCount = hour(jaonData, newDate);
+                }
+                if (range === 'mnth') {
+                    dateCount = month(jaonData, newDate);
+                }
+                if (range === 'day') {
+                    dateCount = day(jaonData, newDate);
+                }
+
+                /*for (let y in jaonData) {
+                    let newDate1 = new Date(jaonData[y].timestamp);
+                    if (newDate.getUTCFullYear() === newDate1.getUTCFullYear()) {
+                        if (newDate.getMonth() === newDate1.getMonth()) {
+                            if (newDate.getDate() == newDate1.getDate()) {
+                                if (newDate.getHours() === newDate1.getHours()) {
+                                    dateCount++;
+                                }
+                            }
+                        }
+                    }
+                }*/
+                data[0].x.push(newDate);
+                data[0].y.push(dateCount);
+                data[0].text.push("Comment: "+jaonData[x].pull_request_comment + "     Message: " +jaonData[x].pull_request_message);
+                dateCount = 0;
+            }
+            checkedDate = false;
+        }
+        if (x === 0) {
             updateGraph();
         }
-        function updateGraph() {
-            Plotly.newPlot('myDiv', data, layout);
-            console.log(data);
-        }
-        retrieveData();
-    </script>
+        x++;
+        //console.log(data);
+    }
+    function updateGraph() {
+        Plotly.newPlot('myDiv', data, layout);
+    }
+    retrieveData("hr");
+
+</script>
 {% endblock %}
