@@ -3,13 +3,12 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
 <div id="myDiv"></div>
-<button onclick="retrieveData('mnth')">Month</button>
-<button onclick="retrieveData('day')">Day</button>
-<button onclick="retrieveData('hr')">Hour</button>
+<button class="btn btn-primary active" onclick="retrieveData('mnth')">Month</button>
+<button class="btn btn-primary active" onclick="retrieveData('day')">Day</button>
+<button class="btn btn-primary active" onclick="retrieveData('hr')">Hour</button>
 <!--<button onclick="update()">Update</button>-->
 
 <script type="text/javascript">
-
     data = [
         {
             x: [],
@@ -53,7 +52,6 @@
             }
         }
     };
-
     let jaonData = "";
     function retrieveData(range) {
         //const url = "https://desolate-journey-98758.herokuapp.com/api/all_pull_requests";
@@ -82,7 +80,6 @@
         }
         return dateCount;
     }
-
     function day(jsonData, newDate) {
         let dateCount = 0;
         for (let y in jsonData) {
@@ -97,7 +94,6 @@
         }
         return dateCount;
     }
-
     function hour(jsonData, newDate) {
         let dateCount = 0;
         for (let y in jsonData) {
@@ -114,14 +110,12 @@
         }
         return dateCount;
     }
-
     function updateGraphRange(range) {
         toData(jaonData, range);
     }
     function update() {
         Plotly.redraw('myDiv');
     }
-
     function toData(jaonData, range) {
         let checkedDates = [];
         let checkedDate = false;
@@ -158,7 +152,6 @@
                 if (range === 'day') {
                     dateCount = day(jaonData, newDate);
                 }
-
                 /*for (let y in jaonData) {
                     let newDate1 = new Date(jaonData[y].timestamp);
                     if (newDate.getUTCFullYear() === newDate1.getUTCFullYear()) {
@@ -188,6 +181,5 @@
         Plotly.newPlot('myDiv', data, layout);
     }
     retrieveData("hr");
-
 </script>
 {% endblock %}
