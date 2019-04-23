@@ -28,7 +28,7 @@ img{
 
 .login_btn{
     display: inline-block;
-    background: #ed9c23;
+    background: #ffc73a;
     padding: 0px 50px;
     color: #fff;
     font-family: "Lucida Console", Monaco, monospace;
@@ -39,7 +39,7 @@ img{
     outline: none;
     box-shadow: none;
     text-align: center;
-    border: 1px solid #ed9c23;
+    border: 1px solid #ffc73a;
     cursor: pointer;
     border-radius: 5px;
     text-transform: uppercase;
@@ -48,7 +48,7 @@ img{
 }
     .login_btn:hover{
         background: #fff;
-        color: #ed9c23;
+        color: #ffc73a;
         border: 1px solid #fff;
     }
 
